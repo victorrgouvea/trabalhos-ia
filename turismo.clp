@@ -125,19 +125,54 @@
 
 ;;; Função para executar consultas
 (deffunction consulta (?tipo-consulta ?parametro)
-    (if (eq ?tipo-consulta "tipo")
-        then (do-for-all-facts ((?f local)) TRUE
-            (if (eq ?f:tipo ?parametro)
-                then (printout t ?f:nome crlf)))
-    else (if (eq ?tipo-consulta "custo")
-        then (do-for-all-facts ((?f local)) TRUE
-            (if (eq ?f:custo ?parametro)
-                then (printout t ?f:nome crlf)))
-    else (if (eq ?tipo-consulta "horario")
-        then (do-for-all-facts ((?f local)) TRUE
-            (if (eq ?f:horario ?parametro)
-                then (printout t ?f:nome crlf)))
-    else (if (eq ?tipo-consulta "clima")
-        then (do-for-all-facts ((?f local)) TRUE
-            (if (eq ?f:clima ?parametro)
-                then (printout t ?f:nome crlf)))))) 
+    (bind ?encontrou FALSE)
+    (if (eq ?tipo-consulta "tipo") then
+        (do-for-all-facts ((?f local)) TRUE
+            (if (eq ?f:tipo ?parametro) then
+                (printout t ?f:nome crlf)
+                (bind ?encontrou TRUE))))
+    (if (eq ?tipo-consulta "custo") then
+        (do-for-all-facts ((?f local)) TRUE
+            (if (eq ?f:custo ?parametro) then
+                (printout t ?f:nome crlf)
+                (bind ?encontrou TRUE))))
+    (if (eq ?tipo-consulta "horario") then
+        (do-for-all-facts ((?f local)) TRUE
+            (if (eq ?f:horario ?parametro) then
+                (printout t ?f:nome crlf)
+                (bind ?encontrou TRUE))))
+    (if (eq ?tipo-consulta "clima") then
+        (do-for-all-facts ((?f local)) TRUE
+            (if (eq ?f:clima ?parametro) then
+                (printout t ?f:nome crlf)
+                (bind ?encontrou TRUE))))
+    (return ?encontrou))
+
+;;; Função para recomendar passeios com critérios opcionais
+(deffunction recomendar (?tipo ?clima ?custo ?horario)
+    (printout t crlf "=== Recomendações de Passeio ===" crlf)
+    (printout t "Critérios especificados:" crlf)
+    (if (neq ?tipo "qualquer") then (printout t "- Tipo: " ?tipo crlf))
+    (if (neq ?clima "qualquer") then (printout t "- Clima: " ?clima crlf))
+    (if (neq ?custo "qualquer") then (printout t "- Custo: " ?custo crlf))
+    (if (neq ?horario "qualquer") then (printout t "- Horário: " ?horario crlf))
+    (printout t crlf)
+    
+    (bind ?encontrou FALSE)
+    (do-for-all-facts ((?f local)) TRUE
+        (if (or (eq ?tipo "qualquer") (eq ?f:tipo ?tipo)) then
+            (if (or (eq ?clima "qualquer") (eq ?f:clima ?clima)) then
+                (if (or (eq ?custo "qualquer") (eq ?f:custo ?custo)) then
+                    (if (or (eq ?horario "qualquer") (eq ?f:horario ?horario)) then
+                        (printout t "Local: " ?f:nome crlf)
+                        (printout t "Tipo: " ?f:tipo crlf)
+                        (printout t "Custo: " ?f:custo crlf)
+                        (printout t "Horário: " ?f:horario crlf)
+                        (printout t "Clima: " ?f:clima crlf)
+                        (printout t "---" crlf)
+                        (bind ?encontrou TRUE))))))
+    
+    (if (not ?encontrou) then
+        (printout t "Nenhum local encontrado com os critérios especificados." crlf))
+    
+    (return TRUE)) 
