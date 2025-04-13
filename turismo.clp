@@ -160,17 +160,25 @@
     
     (bind ?encontrou FALSE)
     (do-for-all-facts ((?f local)) TRUE
-        (if (or (eq ?tipo "qualquer") (eq ?f:tipo ?tipo)) then
-            (if (or (eq ?clima "qualquer") (eq ?f:clima ?clima)) then
-                (if (or (eq ?custo "qualquer") (eq ?f:custo ?custo)) then
-                    (if (or (eq ?horario "qualquer") (eq ?f:horario ?horario)) then
-                        (printout t "Local: " ?f:nome crlf)
-                        (printout t "Tipo: " ?f:tipo crlf)
-                        (printout t "Custo: " ?f:custo crlf)
-                        (printout t "Horário: " ?f:horario crlf)
-                        (printout t "Clima: " ?f:clima crlf)
-                        (printout t "---" crlf)
-                        (bind ?encontrou TRUE))))))
+        (bind ?atende_criterios TRUE)
+        
+        (if (and (neq ?tipo "qualquer") (neq ?f:tipo ?tipo))
+            then (bind ?atende_criterios FALSE))
+        (if (and (neq ?clima "qualquer") (neq ?f:clima ?clima))
+            then (bind ?atende_criterios FALSE))
+        (if (and (neq ?custo "qualquer") (neq ?f:custo ?custo))
+            then (bind ?atende_criterios FALSE))
+        (if (and (neq ?horario "qualquer") (neq ?f:horario ?horario))
+            then (bind ?atende_criterios FALSE))
+            
+        (if ?atende_criterios then
+            (printout t "Local: " ?f:nome crlf)
+            (printout t "Tipo: " ?f:tipo crlf)
+            (printout t "Custo: " ?f:custo crlf)
+            (printout t "Horário: " ?f:horario crlf)
+            (printout t "Clima: " ?f:clima crlf)
+            (printout t "---" crlf)
+            (bind ?encontrou TRUE)))
     
     (if (not ?encontrou) then
         (printout t "Nenhum local encontrado com os critérios especificados." crlf))
