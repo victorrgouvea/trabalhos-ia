@@ -1,10 +1,10 @@
 import numpy as np
 import pygad
 import matplotlib.pyplot as plt
-from typing import List, Tuple
+from typing import Tuple
 import random
 
-# Dicionário com cidades de Santa Catarina (população ≳ 50 mil) e suas coordenadas aproximadas (latitude, longitude)
+
 cities = {
     'Florianópolis': (-27.5954, -48.5480),
     'Joinville': (-26.3044, -48.8487),
@@ -28,7 +28,6 @@ cities = {
     'Nova Trento': (-26.2850, -48.9450)
 }
 
-# Convertendo o dicionário em listas para facilitar o acesso
 city_names = list(cities.keys())
 city_coords = np.array(list(cities.values()))
 
@@ -68,7 +67,6 @@ def custom_crossover_func(parents, offspring_size, ga_instance):
     offspring = []
 
     for k in range(offspring_size[0]):
-        # Seleciona dois pais aleatórios
         parent1_idx = random.randint(0, len(parents) - 1)
         parent2_idx = random.randint(0, len(parents) - 1)
 
@@ -82,16 +80,13 @@ def custom_crossover_func(parents, offspring_size, ga_instance):
         offspring1 = np.full_like(parent1, -1)
         offspring1[point1:point2+1] = parent1[point1:point2+1]
 
-        # Preenche os elementos restantes na ordem do segundo pai,
-        # ignorando os elementos já presentes no segmento copiado
         remaining_elements = [x for x in parent2 if x not in offspring1[point1:point2+1]]
         j = 0
 
-        # Preenche a parte após o segmento
         for i in range(point2+1, size):
             offspring1[i] = remaining_elements[j]
             j += 1
-        # Preenche a parte antes do segmento
+
         for i in range(0, point1):
             offspring1[i] = remaining_elements[j]
             j += 1
@@ -130,15 +125,12 @@ def plot_route(solution: np.ndarray, title: str = "Melhor Rota"):
     """Plota a rota do caixeiro viajante sobre um mapa simplificado."""
     plt.figure(figsize=(10, 6))
 
-    # Plota as cidades
     plt.scatter(city_coords[:, 1], city_coords[:, 0], c='red', s=100)
 
-    # Adiciona os nomes das cidades
     for i, city in enumerate(city_names):
         plt.annotate(city, (city_coords[i, 1], city_coords[i, 0]), xytext=(5, 5),
                      textcoords='offset points')
 
-    # Conecta as cidades conforme a solução encontrada
     for i in range(len(solution)):
         current_city = int(solution[i])
         next_city = int(solution[(i + 1) % len(solution)])
@@ -162,16 +154,14 @@ def on_generation(ga_instance):
         plt.grid(True)
         plt.show()
 
-# Parâmetros do Algoritmo Genético
-num_generations = 1000  # Aumentado para permitir uma melhor convergência
+
+num_generations = 1000
 num_parents_mating = 4
 num_genes = len(cities)
 population_size = 50
 
-# Criando a população inicial com permutações válidas das cidades
 initial_population = custom_init_population(population_size, num_genes)
 
-# Configurando o GA com os operadores customizados
 ga_instance = pygad.GA(
     num_generations=num_generations,
     num_parents_mating=num_parents_mating,
@@ -185,10 +175,8 @@ ga_instance = pygad.GA(
     sol_per_pop=population_size
 )
 
-# Executando o Algoritmo Genético
 ga_instance.run()
 
-# Obtendo a melhor solução
 solution, solution_fitness, _ = ga_instance.best_solution()
 print(f"Melhor fitness: {solution_fitness}\n")
 
@@ -197,5 +185,4 @@ for i in range(len(solution)):
     city_idx = int(solution[i])
     print(f"{i+1}. {city_names[city_idx]}")
 
-# Plota a melhor rota encontrada
 plot_route(solution, "Melhor Rota Encontrada")
